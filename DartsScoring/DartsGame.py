@@ -137,6 +137,9 @@ class DartsApp:
             if not score_input.isdigit():
                 messagebox.showerror("Invalid Input", "Enter a valid score.")
                 return
+            if int(score_input) > self.game.current_target:
+                 messagebox.showerror("Invalid Input", "Enter a valid score.")
+                 return
             self.game.take_turn(int(score_input))
             display_scoreboard_ui(self.scoreboard_frame, self.game)
 
