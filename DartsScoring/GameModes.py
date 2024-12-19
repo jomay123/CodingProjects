@@ -31,13 +31,12 @@ class Game:
             print(f"{player_name} bust! Score remains: {current_score}")
 
     def get_winner(self):
-        for player_name, score in self.scores.items():
-            if score == 0:
-                Player.game_wins += 1
-                game_counter += 1
-                self.score_history[player_name] = []
-                return player_name
-        return None
+     for player in self.players:
+        if self.scores[player.name] == 0:
+            player.game_wins += 1  # Increment the game wins for the player
+            return player.name
+     return None
+
 
     def next_player(self):
         print(self.current_player_index, "Next player function")
@@ -49,7 +48,7 @@ class Game:
      
     def get_last_n_scores(self, player_name, n=5):
      """Return the last n scores for a given player."""
-     return self.score_history[player_name][-n:] if player_name in self.score_history else []
+     return self.score_history[player_name][-n:] if player_name in self.score_history and self.score_history[player_name] != [] else []
 
     
         

@@ -1,4 +1,5 @@
 import tkinter as tk
+from player import Player
 def display_scoreboard_ui(frame, game):
     # Clear the existing widgets in the frame
     for widget in frame.winfo_children():
@@ -18,29 +19,32 @@ def display_scoreboard_ui(frame, game):
 
     else:
         # Standard Game Mode UI
-        players = list(game.scores.items())
+        players = game.players  # Retrieve the list of player objects
 
-        # Set up grid layout for multiple players
-        for idx, (player_name, score) in enumerate(players):
+        for idx, player in enumerate(players):
             col = idx  # Column index for layout
 
             # Player Name
-            name_label = tk.Label(frame, text=player_name, font=("Arial", 16, "bold"))
+            name_label = tk.Label(frame, text=player.name, font=("Arial", 16, "bold"))
             name_label.grid(row=0, column=col, padx=50, pady=5)
 
             # Current Score
-            score_label = tk.Label(frame, text=f"Score: {score}", font=("Arial", 24, "bold"))
+            score_label = tk.Label(frame, text=f"Score: {game.scores[player.name]}", font=("Arial", 24, "bold"))
             score_label.grid(row=1, column=col, padx=50, pady=5)
 
             # Last 5 Scores
-            if hasattr(game, "get_last_n_scores") and hasattr(game, "score_history"):
-                last_scores = game.get_last_n_scores(player_name, n=5)
-                last_scores_text = ", ".join(map(str, last_scores)) if last_scores else "No scores yet"
-                last_scores_label = tk.Label(frame, text=f"Last 5: {last_scores_text}", font=("Arial", 12))
-                last_scores_label.grid(row=2, column=col, padx=50, pady=5)
+            last_scores = game.get_last_n_scores(player.name, n=5)
+            last_scores_text = ", ".join(map(str, last_scores)) if last_scores else "No scores yet"
+            last_scores_label = tk.Label(frame, text=f"Last 5: {last_scores_text}", font=("Arial", 12))
+            last_scores_label.grid(row=2, column=col, padx=50, pady=5)
 
-                # Total Turns
-                total_turns = len(game.score_history[player_name]) * 3
-                turns_label = tk.Label(frame, text=f"Darts: {total_turns}", font=("Arial", 12))
-                turns_label.grid(row=3, column=col, padx=50, pady=5)
+            # Total Turns
+            total_turns = len(game.score_history[player.name]) * 3
+            turns_label = tk.Label(frame, text=f"Darts: {total_turns}", font=("Arial", 12))
+            turns_label.grid(row=3, column=col, padx=50, pady=5)
+
+            # Total Wins
+            wins_label = tk.Label(frame, text=f"Wins: {player.game_wins}", font=("Arial", 12))
+            wins_label.grid(row=4, column=col, padx=50, pady=5)
+
 

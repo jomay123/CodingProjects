@@ -3,6 +3,7 @@ from tkinter import messagebox
 from GameModes import Game, OneTwoOneGame  # Import both game modes
 from player import CPUPlayer, Player
 from utils import display_scoreboard_ui
+from time import sleep
 
 
 class DartsApp:
@@ -72,8 +73,8 @@ class DartsApp:
 
         self.game_counter_slider = tk.Scale(
             root,
-            from_=0,  # Minimum value
-            to=100,  # Maximum value
+            from_=1,  # Minimum value
+            to=30,  # Maximum value
             orient="horizontal",  # Horizontal slider
             length=300,
             command=self.update_game_counter
@@ -185,6 +186,7 @@ class DartsApp:
         # Check if the current player has won the game
         if self.game.scores[current_player.name] == 0:
             # Track total games played
+            winner = self.game.get_winner()
             if not hasattr(self, "games_played"):
                 self.games_played = 0  # Initialize games played counter
 
@@ -198,6 +200,7 @@ class DartsApp:
             else:
                 # End the program after all games have been played
                 messagebox.showinfo("Game Over", f"Congratulations, {current_player.name} wins the final game!")
+                sleep(5)
                 self.root.destroy()
                 return
 
@@ -207,13 +210,14 @@ class DartsApp:
 
 
     def reset_game(self):
-     """Reset the game state for the next match."""
+     """Reset the game state for the next match in Standard Game mode."""
      for player in self.game.players:
         self.game.scores[player.name] = 501  # Reset scores to 501
-
+        self.game.score_history[player.name] = []
      self.current_player_index = 0  # Start with the first player
      display_scoreboard_ui(self.scoreboard_frame, self.game)
      self.update_prompt()
+
 
 
 
