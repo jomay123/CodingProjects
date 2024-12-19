@@ -40,7 +40,7 @@ def display_scoreboard_ui(frame, game):
                 last_scores_label.grid(row=2, column=col, padx=50, pady=5)
 
                 # Total Turns
-                total_turns = len(game.score_history[player_name])
-                turns_label = tk.Label(frame, text=f"Turns: {total_turns}", font=("Arial", 12))
+                total_turns = len(game.score_history[player_name]) * 3
+                turns_label = tk.Label(frame, text=f"Darts: {total_turns}", font=("Arial", 12))
                 turns_label.grid(row=3, column=col, padx=50, pady=5)
 

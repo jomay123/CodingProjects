@@ -4,6 +4,7 @@ class Player:
     def __init__(self, name, starting_score):
         self.name = name
         self.score = starting_score
+        self.game_wins = 0
 
 class CPUPlayer(Player):
     def __init__(self, name, difficulty, starting_score):

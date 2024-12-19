@@ -1,6 +1,7 @@
 from player import Player, CPUPlayer
 
 class Game:
+    game_counter = 0
     def __init__(self, starting_score=501):
         self.starting_score = starting_score
         self.scores = {}
@@ -32,6 +33,9 @@ class Game:
     def get_winner(self):
         for player_name, score in self.scores.items():
             if score == 0:
+                Player.game_wins += 1
+                game_counter += 1
+                self.score_history[player_name] = []
                 return player_name
         return None
 

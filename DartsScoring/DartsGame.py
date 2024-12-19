@@ -1,7 +1,7 @@
 import tkinter as tk
 from tkinter import messagebox
 from GameModes import Game, OneTwoOneGame  # Import both game modes
-from player import CPUPlayer
+from player import CPUPlayer, Player
 from utils import display_scoreboard_ui
 
 
@@ -9,7 +9,7 @@ class DartsApp:
     def __init__(self, root):
         self.root = root
         self.root.title("Darts Scoring App")
-        self.root.geometry("600x400")
+        self.root.geometry("1000x1000")
 
         self.game = None  # Placeholder for the game instance
         self.current_player_index = 0
@@ -66,6 +66,24 @@ class DartsApp:
         tk.Label(self.add_player_frame, text="Difficulty (easy/medium/hard):").grid(row=2, column=0, padx=5)
         self.difficulty_entry = tk.Entry(self.add_player_frame)
         self.difficulty_entry.grid(row=2, column=1, padx=5)
+
+        self.slider_label = tk.Label(root, text="Game Counter:", font=("Arial", 14))
+        self.slider_label.pack(pady=5)
+
+        self.game_counter_slider = tk.Scale(
+            root,
+            from_=0,  # Minimum value
+            to=100,  # Maximum value
+            orient="horizontal",  # Horizontal slider
+            length=300,
+            command=self.update_game_counter
+        )
+        self.game_counter_slider.pack(pady=5)
+
+        # Display the current value of the game counter
+        self.game_counter_value = tk.Label(root, text="Counter Value: 0", font=("Arial", 12))
+        self.game_counter_value.pack(pady=5)
+
 
         tk.Button(self.add_player_frame, text="Add Player", command=self.add_player).grid(row=3, columnspan=2, pady=10)
 
@@ -129,43 +147,74 @@ class DartsApp:
         self.current_player_label.config(text=f"{current_player.name}, enter your score:")
 
 
+    def update_game_counter(self, value):
+        """Update the game counter when the slider changes."""
+        if self.game:  # Ensure the game exists
+            self.game.game_counter = int(value)
+        self.game_counter_value.config(text=f"Counter Value: {value}")
 
     def next_turn(self):
-        """Handle the logic for both game modes."""
-        if self.selected_mode == "onetwoone":
-            score_input = self.score_entry.get()
-            if not score_input.isdigit():
-                messagebox.showerror("Invalid Input", "Enter a valid score.")
-                return
-            if int(score_input) > self.game.current_target:
-                 messagebox.showerror("Invalid Input", "Enter a valid score.")
-                 return
-            self.game.take_turn(int(score_input))
-            display_scoreboard_ui(self.scoreboard_frame, self.game)
+     """Handle the logic for both game modes."""
+     if self.selected_mode == "onetwoone":
+        score_input = self.score_entry.get()
+        if not score_input.isdigit():
+            messagebox.showerror("Invalid Input", "Enter a valid score.")
+            return
+        if int(score_input) > self.game.current_target:
+            messagebox.showerror("Invalid Input", "Enter a valid score.")
+            return
+        self.game.take_turn(int(score_input))
+        display_scoreboard_ui(self.scoreboard_frame, self.game)
 
-            if self.game.is_game_over():
-                messagebox.showinfo("Game Over", self.game.get_game_summary())
+        if self.game.is_game_over():
+            messagebox.showinfo("Game Over", self.game.get_game_summary())
+            self.root.destroy()
+        self.update_prompt()
+     else:
+        current_player = self.game.players[self.current_player_index]
+        score_input = self.score_entry.get()
+        if not score_input.isdigit():
+            return
+        score = int(score_input)
+        if score > 180:
+            messagebox.showerror("Invalid Score", "Score must be between 0 and 180.")
+            return
+        self.game.update_score(current_player.name, score)
+        display_scoreboard_ui(self.scoreboard_frame, self.game)
+
+        # Check if the current player has won the game
+        if self.game.scores[current_player.name] == 0:
+            # Track total games played
+            if not hasattr(self, "games_played"):
+                self.games_played = 0  # Initialize games played counter
+
+            self.games_played += 1
+
+            if self.games_played < self.game_counter_slider.get():
+                # Reset scores and start a new game
+                messagebox.showinfo("Game Over", f"Congratulations, {current_player.name} wins this game!")
+                self.reset_game()
+                return
+            else:
+                # End the program after all games have been played
+                messagebox.showinfo("Game Over", f"Congratulations, {current_player.name} wins the final game!")
                 self.root.destroy()
-            self.update_prompt()
-        else:
-            current_player = self.game.players[self.current_player_index]
-            score_input = self.score_entry.get()
-            if not score_input.isdigit():
-                return
-            score = int(score_input)
-            if score>180:
-                messagebox.showerror("Invalid Score", "Score must be between 0 and 180.")
-                return
-            self.game.update_score(current_player.name, score)
-            display_scoreboard_ui(self.scoreboard_frame, self.game)
-
-            if self.game.scores[current_player.name] == 0:  # End if score is 0
-                messagebox.showinfo("Game Over", f"Congratulations, {current_player.name} wins!")
-                self.root.destroy()
                 return
 
-            self.current_player_index = self.game.next_player()
-            self.update_prompt()
+        # Move to the next player
+        self.current_player_index = self.game.next_player()
+        self.update_prompt()
+
+
+    def reset_game(self):
+     """Reset the game state for the next match."""
+     for player in self.game.players:
+        self.game.scores[player.name] = 501  # Reset scores to 501
+
+     self.current_player_index = 0  # Start with the first player
+     display_scoreboard_ui(self.scoreboard_frame, self.game)
+     self.update_prompt()
+
 
 
 if __name__ == "__main__":
